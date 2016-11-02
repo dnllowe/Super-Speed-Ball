@@ -7,6 +7,16 @@ using System.Collections;
 public class PanelMovement : MonoBehaviour {
 
     /// <summary>
+    /// Enumerator for whic side of the screen the panel is on. 0 = BOTTOM. 1 = TOP.
+    /// </summary>
+    public enum HEMISPHERE { BOTTOM, TOP };
+
+    /// <summary>
+    /// Enumerator for whic side of the screen the panel is on. 0 = BOTTOM. 1 = TOP.
+    /// </summary>
+    public HEMISPHERE hemisphere;
+
+    /// <summary>
     /// Starting x vector
     /// </summary>
     public float startX = 0.0f;
@@ -52,7 +62,13 @@ public class PanelMovement : MonoBehaviour {
 	void Update () {
 
         // Clear previously recorded change
-        deltaX = input.DeltaX;
+        if (hemisphere == HEMISPHERE.BOTTOM) {
+            deltaX = input.DeltaXBottom;
+        }
+
+        if (hemisphere == HEMISPHERE.TOP) {
+            deltaX = input.DeltaXTop;
+        }
 
         // Keep panel within bounds, prevent movement if out of bounds 
         var center = transform.position.x;

@@ -3,9 +3,14 @@
 public class BallProperties : MonoBehaviour {
 
     /// <summary>
-    /// The panel in the game level
+    /// The bottom panel in the game level
     /// </summary>
-    public GameObject panel;
+    public GameObject panelBottom;
+
+    /// <summary>
+    /// The top panel in the game level
+    /// </summary>
+    public GameObject panelTop;
 
     /// <summary>
     /// Score keeper for game

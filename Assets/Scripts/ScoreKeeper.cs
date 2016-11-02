@@ -165,7 +165,7 @@ public class ScoreKeeper : MonoBehaviour {
 
     }
 
-    void Start() {
+    void Awake() {
         timer = gameObject.AddComponent<oTimer>();
     }
 

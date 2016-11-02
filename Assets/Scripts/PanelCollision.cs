@@ -7,6 +7,16 @@ using System.Collections;
 public class PanelCollision : MonoBehaviour {
 
     /// <summary>
+    /// Enumerator for whic side of the screen the panel is on. 0 = BOTTOM. 1 = TOP.
+    /// </summary>
+    public enum HEMISPHERE { BOTTOM, TOP };
+
+    /// <summary>
+    /// Enumerator for whic side of the screen the panel is on. 0 = BOTTOM. 1 = TOP.
+    /// </summary>
+    public HEMISPHERE hemisphere;
+
+    /// <summary>
     /// The game's ball object
     /// </summary>
     public GameObject ball;
@@ -53,10 +63,19 @@ public class PanelCollision : MonoBehaviour {
             // Apply magnitude to x velocity, keep y velocity
             newVelocityX *= relativeDistance;
             float velocityY = ballRigidBody.velocity.y;
-     
+
             // Apply forces to ball
             ballRigidBody.AddForce(0.0f, addedForceY, 0.0f);
-            ballRigidBody.velocity= new Vector3(newVelocityX, velocityY, 0);
+
+            // Must reverse direction for top vs bottom panels
+            switch (hemisphere) {
+                case HEMISPHERE.BOTTOM:
+                    ballRigidBody.velocity = new Vector3(newVelocityX, velocityY, 0);
+                    break;
+                case HEMISPHERE.TOP:
+                    ballRigidBody.velocity = new Vector3(-newVelocityX, velocityY, 0);
+                    break;
+            }
         }
     }
 

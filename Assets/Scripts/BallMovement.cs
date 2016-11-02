@@ -9,9 +9,14 @@ public class BallMovement : MonoBehaviour {
     BallProperties ballProperties;
 
     /// <summary>
-    /// The panel in the game level
+    /// The bottom panel in the game level
     /// </summary>
-    GameObject panel;
+    GameObject panelBottom;
+
+    /// <summary>
+    /// The top panel in the game level
+    /// </summary>
+    GameObject panelTop;
 
     /// <summary>
     /// Score keeper for game
@@ -110,12 +115,15 @@ public class BallMovement : MonoBehaviour {
         speedIncrease = 1.05f; 
         leftBoundary = ballProperties.leftBoundaryObject.transform.position.x;
         rightBoundary = ballProperties.rightBoundaryObject.transform.position.x;
-        panel = ballProperties.panel;
+        panelBottom = ballProperties.panelBottom;
+        rightBoundary = ballProperties.rightBoundaryObject.transform.position.x;
+        panelTop = ballProperties.panelTop;
         scoreKeeper = ballProperties.scoreKeeper;
     }
 
     void Update() {
-        if ((transform.position.y < panel.transform.position.y ||
+        if ((transform.position.y < panelBottom.transform.position.y ||
+            transform.position.y > panelTop.transform.position.y ||
             transform.position.x < leftBoundary ||
             transform.position.x > rightBoundary) && !scoreKeeper.IsGameOver) {
             GetComponent<Collider>().enabled = false;

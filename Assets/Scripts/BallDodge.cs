@@ -125,6 +125,11 @@ public class BallDodge : MonoBehaviour {
         timer.RestartTimer();
     }
 
+    //
+    void Awake() {
+        timer = gameObject.AddComponent<oTimer>();
+    }
+
     // Use this for initialization
     void Start () {
         color = GetComponent<Renderer>().material.color;
@@ -133,7 +138,6 @@ public class BallDodge : MonoBehaviour {
         blue = color.b;
         alpha = color.a;
         dodgeDuration = 500;
-        timer = gameObject.AddComponent<oTimer>();
         dodgeState = DODGE_STATE.NONE;
         dash = GetComponent<BallDash>();
     }
