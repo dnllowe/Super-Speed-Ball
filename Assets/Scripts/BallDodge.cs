@@ -4,11 +4,6 @@ using System.Collections;
 public class BallDodge : MonoBehaviour {
 
     /// <summary>
-    /// Color of ball (changes transparency during dodge)
-    /// </summary>
-    Color materialColor;
-
-    /// <summary>
     /// Script for access to ball dash members
     /// </summary>
     BallDash dash;

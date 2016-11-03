@@ -14,7 +14,6 @@ public class PlayerInput : MonoBehaviour {
         get { return rightTouch; }
     }
 
-    public 
     /// <summary>
     /// Sensitivity of touch / mouse drag input. Set on Start()
     /// </summary>
@@ -168,7 +167,8 @@ public class PlayerInput : MonoBehaviour {
                 }
 
                 if (leftTouch == touch.fingerId) {
-                    //deltaXBottom = touch.deltaPosition.x * sensitivity;
+                    deltaXBottom = touch.deltaPosition.x * sensitivity;
+                    deltaXBottom = touch.deltaPosition.x * sensitivity;
 
                     if (touch.phase == TouchPhase.Ended) {
                         leftTouch = null;
@@ -176,7 +176,7 @@ public class PlayerInput : MonoBehaviour {
                 }
 
                 if (rightTouch == touch.fingerId) {
-                    //deltaXTop = touch.deltaPosition.x * sensitivity;
+                    deltaXTop = touch.deltaPosition.x * sensitivity;
                     deltaXTop = touch.position.x;
 
                     if (touch.phase == TouchPhase.Ended) {
@@ -310,6 +310,10 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
+    void Awake() {
+        timer = gameObject.AddComponent<oTimer>();
+    }
+
     void Start () {
         if (SystemInfo.deviceType == DeviceType.Handheld) {
             sensitivity = touchSensitivity;
@@ -319,15 +323,16 @@ public class PlayerInput : MonoBehaviour {
 
         doubleTapState = DoubleTapState.NONE;
         multiTouchState = MultiTouchState.NONE;
-        timer = gameObject.AddComponent<oTimer>();
+        
     }
 	
     void Update() {
         CheckDoubleTaps();
         CheckMultiTouches();
+        UpdateDeltaX();
     }
 	// Update is called once per frame
 	void FixedUpdate () {
-        UpdateDeltaX();
+        
 	}
 }

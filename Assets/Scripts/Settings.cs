@@ -15,24 +15,29 @@ public class Settings : MonoBehaviour {
     /// <summary>
     /// The closed, BRICK breaker mode arena
     /// </summary>
-    public GameObject arenaClosed;
+    GameObject arenaClosed;
 
     /// <summary>
     /// The open, PONG mode arena
     /// </summary>
-    public GameObject arenaOpen;
+    GameObject arenaOpen;
 
     /// <summary>
     /// The bottom / left panel
     /// </summary>
-    public GameObject panelTop;
+    GameObject panelTop;
 
     /// <summary>
     /// The top / right panel (for PONG control mode)
     /// </summary>
-    public GameObject panelBottom;
+    GameObject panelBottom;
 
     void Start() {
+        arenaOpen = GameObject.FindGameObjectWithTag("arenaOpen");
+        arenaClosed = oFunctions.FindInactiveChild("inactive", "arenaClosed");
+        panelBottom = GameObject.FindGameObjectWithTag("panelBottom");
+        panelTop = GameObject.FindGameObjectWithTag("panelTop");
+
         switch(controlMode) {
             case CONTROL_MODE.PONG:
                 arenaClosed.SetActive(false);

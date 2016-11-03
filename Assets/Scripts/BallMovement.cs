@@ -24,6 +24,11 @@ public class BallMovement : MonoBehaviour {
     ScoreKeeper scoreKeeper;
 
     /// <summary>
+    /// The dash script for the ball object
+    /// </summary>
+    BallDash dash;
+
+    /// <summary>
     /// Left boundary for panel center
     /// </summary>
     float leftBoundary = 0.0f;
@@ -107,12 +112,12 @@ public class BallMovement : MonoBehaviour {
         rigidBody = GetComponent<Rigidbody>();
         rigidBody.AddForce(0.0f, -ballProperties.InitialForce, 0.0f);
         speedIncrease = 1.05f; 
-        leftBoundary = ballProperties.leftBoundaryObject.transform.position.x;
-        rightBoundary = ballProperties.rightBoundaryObject.transform.position.x;
-        panelBottom = ballProperties.panelBottom;
-        rightBoundary = ballProperties.rightBoundaryObject.transform.position.x;
-        panelTop = ballProperties.panelTop;
-        scoreKeeper = ballProperties.scoreKeeper;
+        leftBoundary = GameObject.FindGameObjectWithTag("leftBoundary").transform.position.x;
+        rightBoundary = GameObject.FindGameObjectWithTag("rightBoundary").transform.position.x;
+        panelBottom = GameObject.FindGameObjectWithTag("panelBottom");
+        panelTop = GameObject.FindGameObjectWithTag("panelTop");
+        scoreKeeper = GameObject.FindGameObjectWithTag("scoreKeeper").GetComponent<ScoreKeeper>();
+        dash = GetComponent<BallDash>();
     }
 
     void Update() {
@@ -131,7 +136,9 @@ public class BallMovement : MonoBehaviour {
 
     void FixedUpdate() {
         // NOTE: if using Dash feature, the Dash script will handle FixedUpdate
-        UpdateMaxSpeed();
-        MaintainMaxSpeed();
+        if (!dash.enabled) {
+            UpdateMaxSpeed();
+            MaintainMaxSpeed();
+        }
     }
 }

@@ -3,10 +3,11 @@ using System.Collections;
 
 public class CountGems : MonoBehaviour {
 
-    public ScoreKeeper scoreKeeper;
+    ScoreKeeper scoreKeeper;
 
 	// Use this for initialization
 	void Start () {
+        scoreKeeper = GameObject.FindGameObjectWithTag("scoreKeeper").GetComponent<ScoreKeeper>();
         scoreKeeper.IncreaseTotalGemsCount();
 	}
 }

@@ -9,17 +9,17 @@ public class TrackBall : MonoBehaviour {
     /// <summary>
     /// The game's ball object
     /// </summary>
-    public GameObject ball;
+    GameObject ball;
 
     /// <summary>
     /// The game's bottom panel object
     /// </summary>
-    public GameObject panelBottom;
+    GameObject panelBottom;
 
     /// <summary>
     /// The game's bottom panel object
     /// </summary>
-    public GameObject panelTop;
+    GameObject panelTop;
 
     /// <summary>
     /// How closely to follow ball's movement
@@ -28,6 +28,10 @@ public class TrackBall : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        ball = GameObject.FindGameObjectWithTag("ball");
+        panelTop = GameObject.FindGameObjectWithTag("panelTop");
+        panelBottom = GameObject.FindGameObjectWithTag("panelBottom");
+
         transform.LookAt(ball.transform.position);
     }
 	
