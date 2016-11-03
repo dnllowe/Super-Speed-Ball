@@ -17,11 +17,6 @@ public class PanelCollision : MonoBehaviour {
     public HEMISPHERE hemisphere;
 
     /// <summary>
-    /// The game's ball object
-    /// </summary>
-    public GameObject ball;
-
-    /// <summary>
     /// Physics body for collision and velocity calculations
     /// </summary>
     Rigidbody ballRigidBody;
@@ -52,7 +47,7 @@ public class PanelCollision : MonoBehaviour {
     /// </summary>
     /// <param name="collision">Any object with colliding with tag "ricochet"</param>
     void OnCollisionEnter(Collision collision) {
-        if (collision.gameObject.CompareTag("richochet")) {
+        if (collision.gameObject.CompareTag("ball")) {
             newVelocityX = ballRigidBody.velocity.y;
 
             // Get distance from center of panel to contact point
@@ -81,7 +76,7 @@ public class PanelCollision : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        ballRigidBody = ball.GetComponent<Rigidbody>();
+        ballRigidBody = GameObject.FindGameObjectWithTag("ball").GetComponent<Rigidbody>();
         lengthFromCenter = transform.localScale.x / 2.0f;
 	}
 }

@@ -22,16 +22,6 @@ public class PanelMovement : MonoBehaviour {
     public float startX = 0.0f;
 
     /// <summary>
-    /// Left boundary object for panel movement
-    /// </summary>
-    public GameObject leftBoundaryObject;
-
-    /// <summary>
-    /// Right boundary object for panel movement
-    /// </summary>
-    public GameObject rightBoundaryObject;
-
-    /// <summary>
     /// Change in touch / mouse drag from player
     /// </summary>
     float deltaX = 0;
@@ -52,13 +42,14 @@ public class PanelMovement : MonoBehaviour {
     /// <summary>
     /// Provides data on touch / mouse drag and taps / clicks
     /// </summary>
-    public PlayerInput input;
+    PlayerInput input;
 
 	// Use this for initialization
 	void Start () {
+        input = GameObject.FindGameObjectWithTag("input").GetComponent<PlayerInput>();
         transform.position = new Vector3(startX, transform.position.y, transform.position.z);
-        leftBoundary = leftBoundaryObject.transform.position.x;
-        rightBoundary = rightBoundaryObject.transform.position.x;
+        leftBoundary = GameObject.FindGameObjectWithTag("leftBoundary").transform.position.x;
+        rightBoundary = GameObject.FindGameObjectWithTag("rightBoundary").transform.position.x;
     }
 	
 	// Check whether latest finger moved or mouse click moved and update panel position
@@ -67,12 +58,12 @@ public class PanelMovement : MonoBehaviour {
         // Clear previously recorded change
         if (hemisphere == HEMISPHERE.BOTTOM) {
             deltaX = input.DeltaXBottom;
-            touchId = input.LeftTouch;
+        //    touchId = input.LeftTouch;
         }
 
         if (hemisphere == HEMISPHERE.TOP) {
             deltaX = input.DeltaXTop;
-            touchId = input.RightTouch;
+         //   touchId = input.RightTouch;
         }
 
         // Keep panel within bounds, prevent movement if out of bounds 

@@ -26,13 +26,14 @@ public class BallCollision : MonoBehaviour {
 	}
 
     void OnCollisionEnter(Collision collision) {
-        if (collision.gameObject.CompareTag("panel")) {
+        if (collision.gameObject.CompareTag("panelBottom") || 
+            collision.gameObject.CompareTag("panelTop")) {
             scoreKeeper.ResetMultiplier();
             scoreKeeper.ResetConsecutiveGemsCollected();
         }
     }
 
     void Start() {
-        scoreKeeper = GetComponent<BallProperties>().scoreKeeper;
+        scoreKeeper = GameObject.FindGameObjectWithTag("scoreKeeper").GetComponent<ScoreKeeper>();
     }
 }
