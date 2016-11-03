@@ -36,6 +36,9 @@ public class PanelMovement : MonoBehaviour {
     /// </summary>
     float deltaX = 0;
 
+    Vector3 panelPosition;
+    int? touchId;
+
     /// <summary>
     /// Left boundary for panel center
     /// </summary>
@@ -64,10 +67,12 @@ public class PanelMovement : MonoBehaviour {
         // Clear previously recorded change
         if (hemisphere == HEMISPHERE.BOTTOM) {
             deltaX = input.DeltaXBottom;
+            touchId = input.LeftTouch;
         }
 
         if (hemisphere == HEMISPHERE.TOP) {
             deltaX = input.DeltaXTop;
+            touchId = input.RightTouch;
         }
 
         // Keep panel within bounds, prevent movement if out of bounds 

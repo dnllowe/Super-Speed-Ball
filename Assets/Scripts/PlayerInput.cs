@@ -3,10 +3,18 @@ using System.Collections;
 
 public class PlayerInput : MonoBehaviour {
 
-    Touch? leftTouch = null;
-    Touch? rightTouch = null;
-    Touch? latestTouch = null;
+    int? leftTouch = null;
+    int? rightTouch = null;
 
+    public int? LeftTouch {
+        get { return leftTouch; }
+    }
+
+    public int? RightTouch {
+        get { return rightTouch; }
+    }
+
+    public 
     /// <summary>
     /// Sensitivity of touch / mouse drag input. Set on Start()
     /// </summary>
@@ -20,7 +28,7 @@ public class PlayerInput : MonoBehaviour {
     /// <summary>
     /// Sensitivity for touch / mobile input
     /// </summary>
-    public float touchSensitivity = 0.5f;
+    public float touchSensitivity = 0.01f;
 
     /// <summary>
     /// Change in touch / mouse drag since previous frame
@@ -142,35 +150,40 @@ public class PlayerInput : MonoBehaviour {
         deltaXTop = 0.0f;
 
         if (SystemInfo.deviceType == DeviceType.Handheld) {
-            // Find the latest touch
-            if (Input.touchCount > 0 &&
-            Input.GetTouch(Input.touchCount - 1).phase == TouchPhase.Began) {
-                latestTouch = Input.GetTouch(Input.touchCount - 1);
-            } 
 
-            // Assign latest touch to the appropriate side of the screen
-            if (latestTouch.HasValue &&
-                latestTouch.Value.phase == TouchPhase.Began &&
-                latestTouch.Value.position.y < Screen.height / 2) {
-                leftTouch = latestTouch.Value;
+            // Loop through touches to update left and right touch changes
+            for (int iii = 0; iii < Input.touchCount; iii++) {
+
+                var touch = Input.GetTouch(iii);
+
+                // Assign latest touches to screen hemispheres
+                if (touch.phase == TouchPhase.Began &&
+                    touch.position.y < Screen.height / 2) {
+                    leftTouch = touch.fingerId;
+                }
+
+                if (touch.phase == TouchPhase.Began &&
+                    touch.position.y > Screen.height / 2) {
+                    rightTouch = touch.fingerId;
+                }
+
+                if (leftTouch == touch.fingerId) {
+                    //deltaXBottom = touch.deltaPosition.x * sensitivity;
+
+                    if (touch.phase == TouchPhase.Ended) {
+                        leftTouch = null;
+                    }
+                }
+
+                if (rightTouch == touch.fingerId) {
+                    //deltaXTop = touch.deltaPosition.x * sensitivity;
+                    deltaXTop = touch.position.x;
+
+                    if (touch.phase == TouchPhase.Ended) {
+                        rightTouch = null;
+                    }
+                }
             }
-
-            if (latestTouch.HasValue &&
-                latestTouch.Value.phase == TouchPhase.Began &&
-                latestTouch.Value.position.y > Screen.height / 2) {
-                rightTouch = latestTouch.Value;
-            }
-
-            if (leftTouch.HasValue) {
-                deltaXBottom = leftTouch.Value.deltaPosition.x * sensitivity;
-            }
-
-            if (rightTouch.HasValue) {
-                deltaXTop = rightTouch.Value.deltaPosition.x * sensitivity;
-            }
-
-            // Reset until next new touch
-            latestTouch = null;
 
         } else if (SystemInfo.deviceType == DeviceType.Desktop) {
 

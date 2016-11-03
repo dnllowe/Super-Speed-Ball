@@ -24,7 +24,7 @@ public class TrackBall : MonoBehaviour {
     /// <summary>
     /// How closely to follow ball's movement
     /// </summary>
-    float lookMagnitude = 1.0f / 3.0f;
+    float lookMagnitude = 1.0f / 5.0f;
 
 	// Use this for initialization
 	void Start () {
@@ -46,7 +46,8 @@ public class TrackBall : MonoBehaviour {
             transform.Translate(0.0f, 0.0f, 0.1f);
         }
 
-        // Loosely follow ball by reducing magnitude of look position
-        transform.LookAt(ball.transform.position * lookMagnitude);
+        // Loosely follow ball by reducing magnitude of look position 
+        var target = ball.transform.position;
+        transform.LookAt(target * lookMagnitude);
     }
 }

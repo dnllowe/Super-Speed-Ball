@@ -39,11 +39,6 @@ public class BallMovement : MonoBehaviour {
     Rigidbody rigidBody;
 
     /// <summary>
-    /// Collider for ball object
-    /// </summary>
-    Collider ballCollider;
-
-    /// <summary>
     /// The fastest recorded velocity of the ball. Used to prevent it from going below
     /// </summary>
     float maxSpeed = 0.0f;
@@ -109,9 +104,8 @@ public class BallMovement : MonoBehaviour {
         ballProperties = GetComponent<BallProperties>();
         transform.position = new Vector3(ballProperties.startX, 
             transform.position.y, transform.position.z);
-        ballProperties.initialForce = 2000.0f;
         rigidBody = GetComponent<Rigidbody>();
-        rigidBody.AddForce(0.0f, -ballProperties.initialForce, 0.0f);
+        rigidBody.AddForce(0.0f, -ballProperties.InitialForce, 0.0f);
         speedIncrease = 1.05f; 
         leftBoundary = ballProperties.leftBoundaryObject.transform.position.x;
         rightBoundary = ballProperties.rightBoundaryObject.transform.position.x;
@@ -133,5 +127,11 @@ public class BallMovement : MonoBehaviour {
         }
 
         displayVelocity = rigidBody.velocity;
+    }
+
+    void FixedUpdate() {
+        // NOTE: if using Dash feature, the Dash script will handle FixedUpdate
+        UpdateMaxSpeed();
+        MaintainMaxSpeed();
     }
 }

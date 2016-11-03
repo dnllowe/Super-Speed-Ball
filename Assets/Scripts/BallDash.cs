@@ -19,11 +19,6 @@ public class BallDash : MonoBehaviour {
     Rigidbody rigidBody;
 
     /// <summary>
-    /// The game's current camera
-    /// </summary>
-    Camera currentCamera;
-
-    /// <summary>
     /// Where player cursor or touch is positioned relative to world space for Dash
     /// </summary>
     Vector3 aim;
@@ -90,28 +85,16 @@ public class BallDash : MonoBehaviour {
 
     void DashAim() {
         if (SystemInfo.deviceType == DeviceType.Handheld) {
-            var touchLocation = Input.touches[Input.touchCount - 1];
-            var touchX = touchLocation.position.x;
-            var touchY = touchLocation.position.y;
-
-            // Convert touch / mouse location to ray
-            var ray = currentCamera.ScreenPointToRay(new Vector3(touchX, touchY, 0));
+            var touch = Input.touches[Input.touchCount - 1];
 
             // Convert ray to vector at plane that intersects object (ball)
-            aim = ray.GetPoint(Vector3.Distance(currentCamera.transform.position,
-                transform.position));
+            aim = oFunctions.ConvertTouchToGameCoordinates(touch, gameObject);
 
         } else if (SystemInfo.deviceType == DeviceType.Desktop) {
-            var mousePosition = Input.mousePosition;
-            var mouseX = mousePosition.x;
-            var mouseY = mousePosition.y;
-
-            // Convert touch / mouse location to ray
-            var ray = currentCamera.ScreenPointToRay(new Vector3(mouseX, mouseY, 0));
+            var mouse = Input.mousePosition;
 
             // Convert ray to vector at plane that intersects object (ball)
-            aim = ray.GetPoint(Vector3.Distance(currentCamera.transform.position,
-                transform.position));
+            aim = oFunctions.ConvertMouseToGameCoordinates(mouse, gameObject);
         }
     }
 
@@ -163,8 +146,8 @@ public class BallDash : MonoBehaviour {
         ballCollider = GetComponent<Collider>();
         rigidBody = GetComponent<Rigidbody>();
         dodgeTimer = GetComponent<BallDodge>().Timer;
-        currentCamera = GetComponent<BallProperties>().currentCamera;
         ballMovement = GetComponent<BallMovement>();
+        dashState = DASH_STATE.NONE;
     }
 	
 	// Update is called once per frame
