@@ -9,6 +9,34 @@ public class oFunctions : MonoBehaviour {
     public static Camera overheadCamera;
 
     /// <summary>
+    /// Timer to count frames for CountFramesPerSecond
+    /// </summary>
+    static oTimer frameTimer;
+
+    /// <summary>
+    /// Keeps track of frame for CountFramesPerSecond
+    /// </summary>
+    static int frameCount = 0;
+
+    /// <summary>
+    /// Stores frames per second from CountFramesPerSecond
+    /// </summary>
+    static float framesPerSecond = 0.0f;
+
+    /// <summary>
+    /// Keeps track of game's frames per second
+    /// </summary>
+    public static void CountFramesPerSecond() {
+        frameCount++;
+        var sec = frameTimer.GetElapsedTime();
+        if (sec >= 1000) {
+            framesPerSecond = (float)(frameCount) / ((float)(sec) / 1000.0f);
+            frameCount = 0;
+            frameTimer.RestartTimer();
+        }
+    }
+
+    /// <summary>
     /// Converts a touch to game world coordinates at z-depth of target
     /// </summary>
     /// <param name="touch">The touch to convert</param>
@@ -43,6 +71,40 @@ public class oFunctions : MonoBehaviour {
     }
 
     /// <summary>
+    /// Converts a screen coordinate to game world coordinates at z-depth of target
+    /// </summary>
+    /// <param name="x">The x screen coordinate to convert</param>
+    /// /// <param name="y">The y screen coordinate to convert</param>
+    /// <param name="target">The z-depth for where the touch should intersect in 3D game space</param>
+    public static Vector3 ConvertScreenToGameCoordinates(float x, float y, GameObject target) {
+        
+        // Convert touch location to ray
+        var ray = overheadCamera.ScreenPointToRay(new Vector3(x, y, 0));
+
+        // Convert ray to vector at plane that intersects object
+        var destination = ray.GetPoint(
+            Vector3.Distance(overheadCamera.transform.position, target.transform.position));
+
+        return destination;
+    }
+
+    /// <summary>
+    /// Converts a screen coordinate to game world coordinates at z-depth of target
+    /// </summary>
+    /// <param name="screenCoordinates">The screen coordinates to convert</param>
+    /// <param name="target">The z-depth for where the touch should intersect in 3D game space</param>
+    public static Vector3 ConvertScreenToGameCoordinates(Vector3 screenCoordinates, GameObject target) {
+
+        // Convert touch location to ray
+        var ray = overheadCamera.ScreenPointToRay(screenCoordinates);
+
+        // Convert ray to vector at plane that intersects object
+        var destination = ray.GetPoint(
+            Vector3.Distance(overheadCamera.transform.position, target.transform.position));
+
+        return destination;
+    }
+    /// <summary>
     /// Finds an inactive game object using active parent (inactive objects are not return with GameObject.Find functions)
     /// </summary>
     /// <param name="parentTag">The active parent tag</param>
@@ -62,7 +124,11 @@ public class oFunctions : MonoBehaviour {
 
         return childObject;
     }
-     
+
+    void Awake() {
+        frameTimer = gameObject.AddComponent<oTimer>();
+    }
+
 	// Use this for initialization
 	void Start () {
         var cameras = Camera.allCameras;
@@ -73,5 +139,15 @@ public class oFunctions : MonoBehaviour {
                 break;
             }
         }
+
+        frameTimer.StartTimer();
 	}
+    
+    void Update() {
+
+        if(frameTimer.GetElapsedTime() >= 1000) {
+            Debug.Log("Frames Per Second: " + framesPerSecond);
+        }
+        CountFramesPerSecond();
+    }
 }

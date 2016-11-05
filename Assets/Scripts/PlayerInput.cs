@@ -1,17 +1,102 @@
 ﻿using UnityEngine;
-using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PlayerInput : MonoBehaviour {
 
-    int? leftTouch = null;
-    int? rightTouch = null;
+    /// <summary>
+    /// The most recent left touch. Null if no touch on left side of screen
+    /// </summary>
+    int? leftTouchId = null;
 
-    public int? LeftTouch {
-        get { return leftTouch; }
+    /// <summary>
+    /// The most recent right touch. Null if no touch on right side of screen
+    /// </summary>
+    int? rightTouchId = null;
+
+    /// <summary>
+    /// The most recent left touch. Null if no touch on left side of screen
+    /// </summary>
+    public int? LeftTouchId {
+        get { return leftTouchId; }
     }
 
-    public int? RightTouch {
-        get { return rightTouch; }
+    /// <summary>
+    /// The most recent right touch. Null if no touch on right side of screen
+    /// </summary>
+    public int? RightTouchId {
+        get { return rightTouchId; }
+    }
+
+    /// <summary>
+    /// The left touch x screen coordinate
+    /// </summary>
+    float? leftTouchX = null;
+
+    /// <summary>
+    /// The left touch y screen coordinate
+    /// </summary>
+    float? leftTouchY = null;
+
+    /// <summary>
+    /// The right touch x screen coordinate
+    /// </summary>
+    float? rightTouchX = null;
+
+    /// <summary>
+    /// The right touch y screen coordinate
+    /// </summary>
+    float? rightTouchY = null;
+
+    /// <summary>
+    /// The left touch x screen coordinate
+    /// </summary>
+    public float? LeftTouchX {
+        get { return leftTouchX; }
+    }
+
+    /// <summary>
+    /// The left touch y screen coordinate
+    /// </summary>
+    public float? LeftTouchY {
+        get { return leftTouchY; }
+    }
+
+    /// <summary>
+    /// The right touch x screen coordinate
+    /// </summary>
+    public float? RightTouchX {
+        get { return rightTouchX; }
+    }
+
+    /// <summary>
+    /// The right touch y screen coordinate
+    /// </summary>
+    public float? RightTouchY {
+        get { return rightTouchY; }
+    }
+
+    /// <summary>
+    /// Vector for left touch x and y screen coordinates
+    /// </summary>
+    Vector3? leftTouchCoordinates = null;
+
+    /// <summary>
+    /// Vector for right touch x and y screen coordinates
+    /// </summary>
+    Vector3? rightTouchCoordinates = null;
+
+    /// <summary>
+    /// Vector for left touch x and y screen coordinates
+    /// </summary>
+    public Vector3? LeftTouchCoordinates {
+        get { return leftTouchCoordinates; }
+    }
+
+    /// <summary>
+    /// Vector for right touch x and y screen coordinates
+    /// </summary>
+    public Vector3? RightTouchCoordinates {
+        get { return rightTouchCoordinates; }
     }
 
     /// <summary>
@@ -140,6 +225,8 @@ public class PlayerInput : MonoBehaviour {
     /// </summary>
     oTimer timer;
 
+    oTimer debugTimer;
+
     /// <summary>
     /// Gets difference in tap / mouse x position when pressed / LMB held
     /// </summary>
@@ -158,29 +245,41 @@ public class PlayerInput : MonoBehaviour {
                 // Assign latest touches to screen hemispheres
                 if (touch.phase == TouchPhase.Began &&
                     touch.position.y < Screen.height / 2) {
-                    leftTouch = touch.fingerId;
+                    leftTouchId = touch.fingerId;
                 }
 
                 if (touch.phase == TouchPhase.Began &&
                     touch.position.y > Screen.height / 2) {
-                    rightTouch = touch.fingerId;
+                    rightTouchId = touch.fingerId;
                 }
 
-                if (leftTouch == touch.fingerId) {
+                if (leftTouchId == touch.fingerId) {
                     deltaXBottom = touch.deltaPosition.x * sensitivity;
                     deltaXBottom = touch.deltaPosition.x * sensitivity;
+                    leftTouchX = touch.position.x;
+                    leftTouchY = touch.position.y;
+                    leftTouchCoordinates = new Vector3(touch.position.x, touch.position.y, 0);
 
                     if (touch.phase == TouchPhase.Ended) {
-                        leftTouch = null;
+                        leftTouchId = null;
+                        leftTouchX = null;
+                        leftTouchY = null;
+                        leftTouchCoordinates = null;
                     }
                 }
 
-                if (rightTouch == touch.fingerId) {
+                if (rightTouchId == touch.fingerId) {
                     deltaXTop = touch.deltaPosition.x * sensitivity;
                     deltaXTop = touch.position.x;
+                    rightTouchX = touch.position.x;
+                    rightTouchY = touch.position.y;
+                    rightTouchCoordinates = new Vector3(touch.position.x, touch.position.y, 0);
 
                     if (touch.phase == TouchPhase.Ended) {
-                        rightTouch = null;
+                        rightTouchId = null;
+                        rightTouchX = null;
+                        rightTouchY = null;
+                        rightTouchCoordinates = null;
                     }
                 }
             }
@@ -312,9 +411,11 @@ public class PlayerInput : MonoBehaviour {
 
     void Awake() {
         timer = gameObject.AddComponent<oTimer>();
+        debugTimer = gameObject.AddComponent<oTimer>();
     }
 
     void Start () {
+
         if (SystemInfo.deviceType == DeviceType.Handheld) {
             sensitivity = touchSensitivity;
         } else if (SystemInfo.deviceType == DeviceType.Desktop) {
@@ -330,9 +431,18 @@ public class PlayerInput : MonoBehaviour {
         CheckDoubleTaps();
         CheckMultiTouches();
         UpdateDeltaX();
+
+        if(Input.touchCount >= 3 && !debugTimer.IsRunning()) {
+            debugTimer.StartTimer();
+            debugTimer.SetMark(3000);
+        }
+
+        if (debugTimer.IsMarkSet() && debugTimer.HasReachedMark() && Input.touchCount >= 3) {
+            if (SceneManager.GetActiveScene().buildIndex + 1 < SceneManager.sceneCountInBuildSettings) {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            } else {
+                SceneManager.LoadScene(0);
+            }
+        }
     }
-	// Update is called once per frame
-	void FixedUpdate () {
-        
-	}
 }

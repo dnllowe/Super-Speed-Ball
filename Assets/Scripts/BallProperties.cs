@@ -10,7 +10,7 @@ public class BallProperties : MonoBehaviour {
     /// <summary>
     /// How much force hits the ball to start each round
     /// </summary>
-    float initialForce = 2000.0f;
+    public float initialForce = 2000.0f;
 
     /// <summary>
     /// How much force hits the ball to start each round

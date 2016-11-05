@@ -12,7 +12,7 @@ public class AutoRotate : MonoBehaviour {
     public Vector3 rotation = new Vector3(0.0f, 0.0f, 0.0f);
 
 	// Update is called once per frame
-	void FixedUpdate () {
+	void Update () {
         transform.Rotate(rotation * Time.deltaTime, Space.World);
 	}
 }

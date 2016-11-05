@@ -20,8 +20,19 @@ public class AutoMove : MonoBehaviour {
     /// </summary>
     public float speedY = 0.0f;
 
+    /// <summary>
+    /// Controls slow down as object approaches boundaries
+    /// </summary>
     public float easing = 1.0f;
+
+    /// <summary>
+    /// Amount of easing slow down as object approahces x boundary
+    /// </summary>
     public float easingValueX;
+
+    /// <summary>
+    /// Amount of easing slow down as object approaches y boundary
+    /// </summary>
     public float easingValueY;
 
     /// <summary>
@@ -81,16 +92,13 @@ public class AutoMove : MonoBehaviour {
     /// Holds midpoint of boundaries
     /// </summary>
     Midpoint midpoint;
+
     // Use this for initialization
     void Start() {
-       // halfWidth = GetComponent<Renderer>().bounds.extents.x;
-       // halfHeight = GetComponent<Renderer>().bounds.extents.y;
         boundary.left = leftBoundary.transform.position.x;
         boundary.right = rightBoundary.transform.position.x;
         boundary.top = topBoundary.transform.position.y;
         boundary.bottom = bottomBoundary.transform.position.y;
-
-      
         midpoint.x = (boundary.left + boundary.right) / 2.0f;
         midpoint.y = (boundary.top + boundary.bottom) / 2.0f;
     }

@@ -6,6 +6,9 @@ using System.Collections;
 /// </summary>
 public class BallCollision : MonoBehaviour {
 
+    /// <summary>
+    /// Keeps track of game scoring. Used here to reset multiplier when ball hits panel
+    /// </summary>
     ScoreKeeper scoreKeeper;
 
 	void OnTriggerEnter(Collider other) {

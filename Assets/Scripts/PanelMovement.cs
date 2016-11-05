@@ -26,9 +26,11 @@ public class PanelMovement : MonoBehaviour {
     /// </summary>
     float deltaX = 0;
 
-    Vector3 panelPosition;
-    int? touchId;
-
+    /// <summary>
+    /// Vector for latest touch position
+    /// </summary>
+    Vector3 touchPosition;
+ 
     /// <summary>
     /// Left boundary for panel center
     /// </summary>
@@ -50,36 +52,60 @@ public class PanelMovement : MonoBehaviour {
         transform.position = new Vector3(startX, transform.position.y, transform.position.z);
         leftBoundary = GameObject.FindGameObjectWithTag("leftBoundary").transform.position.x;
         rightBoundary = GameObject.FindGameObjectWithTag("rightBoundary").transform.position.x;
+        touchPosition = transform.position;
     }
 	
 	// Check whether latest finger moved or mouse click moved and update panel position
 	void Update () {
 
-        // Clear previously recorded change
+        // Set new position based on touch or keyboard. If no new touch, stay in place.
         if (hemisphere == HEMISPHERE.BOTTOM) {
             deltaX = input.DeltaXBottom;
-        //    touchId = input.LeftTouch;
+
+            if (input.LeftTouchCoordinates != null) {
+                touchPosition = oFunctions.ConvertScreenToGameCoordinates(
+                    (Vector3)(input.LeftTouchCoordinates), gameObject);
+            } else {
+                touchPosition = transform.position;
+            }
         }
 
         if (hemisphere == HEMISPHERE.TOP) {
             deltaX = input.DeltaXTop;
-         //   touchId = input.RightTouch;
+
+            if (input.RightTouchCoordinates != null) {
+                touchPosition = oFunctions.ConvertScreenToGameCoordinates(
+                    (Vector3)(input.RightTouchCoordinates), gameObject);
+            } else {
+                touchPosition = transform.position;
+            }
         }
 
-        // Keep panel within bounds, prevent movement if out of bounds 
-        var center = transform.position.x;
-        var difference = 0.0f;
-        if(center <= leftBoundary && deltaX < 0) {
-            deltaX = 0;
-            difference = leftBoundary - center;
-            gameObject.transform.Translate(difference, 0, 0);
-        } else if(center >= rightBoundary && deltaX > 0) {
-            deltaX = 0;
-            difference = rightBoundary - center;
-            gameObject.transform.Translate(difference, 0, 0);
-        }
+        if (SystemInfo.deviceType == DeviceType.Handheld) {
 
-        gameObject.transform.Translate(deltaX, 0, 0);
+            // Keep panel within bounds, prevent movement if out of bounds 
+            var x = touchPosition.x;
+            var y = transform.position.y;
+            var z = transform.position.z;
+
+            var center = transform.position.x;
+            if (x < leftBoundary) {
+                x = leftBoundary;
+            } else if (x > rightBoundary) {
+                x = rightBoundary;
+            }
+            transform.position = new Vector3(x, y, z);
+
+        } else if (SystemInfo.deviceType == DeviceType.Desktop) {
+
+            // Keep panel within bounds, prevent movement if out of bounds 
+            var center = transform.position.x;
+            if ((center <= leftBoundary && deltaX < 0) || 
+                (center >= rightBoundary && deltaX > 0)) {
+                deltaX = 0;
+            }
+            transform.Translate(deltaX, 0, 0);
+        }
         
 	}
 

@@ -63,7 +63,7 @@ public class BallMovement : MonoBehaviour {
     /// <summary>
     /// How much to increase speed after each boost
     /// </summary>
-    float speedIncrease = 0.0f;
+    public float speedIncrease = 1.05f;
   
     public void IncreaseMaxSpeed() {
         maxSpeed *= speedIncrease;
@@ -111,7 +111,6 @@ public class BallMovement : MonoBehaviour {
             transform.position.y, transform.position.z);
         rigidBody = GetComponent<Rigidbody>();
         rigidBody.AddForce(0.0f, -ballProperties.InitialForce, 0.0f);
-        speedIncrease = 1.05f; 
         leftBoundary = GameObject.FindGameObjectWithTag("leftBoundary").transform.position.x;
         rightBoundary = GameObject.FindGameObjectWithTag("rightBoundary").transform.position.x;
         panelBottom = GameObject.FindGameObjectWithTag("panelBottom");
@@ -131,14 +130,12 @@ public class BallMovement : MonoBehaviour {
             scoreKeeper.IsGameOver = true;
         }
 
-        displayVelocity = rigidBody.velocity;
-    }
-
-    void FixedUpdate() {
         // NOTE: if using Dash feature, the Dash script will handle FixedUpdate
         if (!dash.enabled) {
             UpdateMaxSpeed();
             MaintainMaxSpeed();
         }
+
+        displayVelocity = rigidBody.velocity;
     }
 }

@@ -161,7 +161,7 @@ public class oTimer : MonoBehaviour {
         int elapse = time - startTime + increasedTime - decreasedTime;
 
         if (isTicking) {
-            return elapse + elapsedTime / 1000;
+            return (elapse + elapsedTime) / 1000;
         } else {
             return elapsedTime / 1000;
         }

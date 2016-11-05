@@ -19,6 +19,11 @@ public class BallDash : MonoBehaviour {
     Rigidbody rigidBody;
 
     /// <summary>
+    /// Color modifier for ball
+    /// </summary>
+    ColorModifier color;
+
+    /// <summary>
     /// Where player cursor or touch is positioned relative to world space for Dash
     /// </summary>
     Vector3 aim;
@@ -27,6 +32,21 @@ public class BallDash : MonoBehaviour {
     /// Last recorded velocity before dash state change
     /// </summary>
     Vector3 previousVelocity;
+
+    /// <summary>
+    /// Position of the ball when dash began
+    /// </summary>
+    Vector3 preDashPosition;
+
+    /// <summary>
+    /// How long dash mode lasts
+    /// </summary>
+    public int dashDuration = 1000;
+
+    /// <summary>
+    /// Opacity level ball fades to during dodge phase
+    /// </summary>
+    float dashFadeValue = 0.25f;
 
     /// <summary>
     /// Enumerator for dash state. NONE = not dashing. CHARGED = ready to initiate. BEGAN = ball frozen, but not aiming. AIM = player is aiming new direction
@@ -71,7 +91,10 @@ public class BallDash : MonoBehaviour {
         ballCollider.enabled = false;
         if (dashState == DASH_STATE.NONE) {
             previousVelocity = rigidBody.velocity;
+            color.SetAlpha(dashFadeValue);
+            preDashPosition = transform.position;
         }
+
         rigidBody.velocity = new Vector3(0, 0, 0);
         dashState = DASH_STATE.BEGAN;
 
@@ -79,10 +102,16 @@ public class BallDash : MonoBehaviour {
         dodgeTimer.PauseTimer();
     }
 
+    /// <summary>
+    /// Enter aiming phase of dash. 
+    /// </summary>
     void DashAimBegan() {
         dashState = DASH_STATE.AIM;
     }
 
+    /// <summary>
+    /// Player controls direction ball will shoot when released
+    /// </summary>
     void DashAim() {
         if (SystemInfo.deviceType == DeviceType.Handheld) {
             var touch = Input.touches[Input.touchCount - 1];
@@ -98,12 +127,18 @@ public class BallDash : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Release ball in new direction (set by player). Resume previous velocity
+    /// </summary>
     void Dash() {
         ballCollider.enabled = true;
+        transform.position = preDashPosition;
 
+        // RETURNS HERE
         if (dashState != DASH_STATE.AIM) {
             rigidBody.velocity = previousVelocity;
             dashState = DASH_STATE.NONE;
+            color.SetAlpha(1.0f);
 
             // Unpause timer to resume dodging
             dodgeTimer.UnpauseTimer();
@@ -136,6 +171,7 @@ public class BallDash : MonoBehaviour {
             rigidBody.velocity = newVelocity;
         }
         dashState = DASH_STATE.NONE;
+        color.SetAlpha(1.0f);
 
         // Unpause timer to resume dodging
         dodgeTimer.UnpauseTimer();
@@ -147,17 +183,16 @@ public class BallDash : MonoBehaviour {
         rigidBody = GetComponent<Rigidbody>();
         dodgeTimer = GetComponent<BallDodge>().Timer;
         ballMovement = GetComponent<BallMovement>();
+        color = GetComponent<ColorModifier>();
         dashState = DASH_STATE.NONE;
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update() {
         if (dashState == DASH_STATE.AIM) {
             DashAim();
         }
-    }
 
-    void FixedUpdate() {
         // Do not keep max speed if in dash state
         if (dashState == DASH_STATE.NONE) {
             ballMovement.UpdateMaxSpeed();

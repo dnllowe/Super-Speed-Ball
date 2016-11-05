@@ -14,6 +14,11 @@ public class BallDodge : MonoBehaviour {
     oTimer timer;
 
     /// <summary>
+    /// Color modifier for the ball
+    /// </summary>
+    ColorModifier color;
+
+    /// <summary>
     /// Keeps track of dodge duration
     /// </summary>
     public oTimer Timer {
@@ -66,34 +71,9 @@ public class BallDodge : MonoBehaviour {
     }
 
     /// <summary>
-    /// Color of ball (Vector3)
-    /// </summary>
-    Color color;
-
-    /// <summary>
-    /// Red value of ball
-    /// </summary>
-    float red;
-
-    /// <summary>
-    /// Green value of ball
-    /// </summary>
-    float green;
-
-    /// <summary>
-    /// Blue value of ball
-    /// </summary>
-    float blue;
-
-    /// <summary>
-    /// Alpha value of ball
-    /// </summary>
-    float alpha;
-
-    /// <summary>
     /// How long dodge phase lasts
     /// </summary>
-    public int dodgeDuration = 0;
+    public int dodgeDuration = 500;
 
     /// <summary>
     /// Opacity level ball fades to during dodge phase
@@ -114,27 +94,19 @@ public class BallDodge : MonoBehaviour {
         if (onDodgeBegan != null) {
             onDodgeBegan();
         }
-        alpha = dodgeFadeValue;
-        color = new Color(red, green, blue, alpha);
-        GetComponent<Renderer>().material.color = color;
+        color.SetAlpha(dodgeFadeValue);
         timer.RestartTimer();
     }
 
-    //
     void Awake() {
         timer = gameObject.AddComponent<oTimer>();
     }
 
     // Use this for initialization
     void Start () {
-        color = GetComponent<Renderer>().material.color;
-        red = color.r;
-        green = color.g;
-        blue = color.b;
-        alpha = color.a;
-        dodgeDuration = 500;
         dodgeState = DODGE_STATE.NONE;
         dash = GetComponent<BallDash>();
+        color = GetComponent<ColorModifier>();
     }
 	
 	// Update is called once per frame
@@ -145,9 +117,7 @@ public class BallDodge : MonoBehaviour {
                 onDodgeEnd();
             }
             timer.ResetTimer();
-            alpha = 1.0f;
-            color = new Color(red, green, blue, alpha);
-            GetComponent<Renderer>().material.color = color;
+            color.SetAlpha(1.0f);
         }
     }
 }

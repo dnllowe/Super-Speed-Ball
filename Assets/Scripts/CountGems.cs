@@ -3,6 +3,9 @@ using System.Collections;
 
 public class CountGems : MonoBehaviour {
 
+    /// <summary>
+    /// Keeps track of game scoring. Used here so score is aware of total gems in level
+    /// </summary>
     ScoreKeeper scoreKeeper;
 
 	// Use this for initialization
