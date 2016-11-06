@@ -14,12 +14,12 @@ public class TrackBall : MonoBehaviour {
     /// <summary>
     /// The game's bottom panel object
     /// </summary>
-    GameObject panelBottom;
+    GameObject panelLeft;
 
     /// <summary>
     /// The game's bottom panel object
     /// </summary>
-    GameObject panelTop;
+    GameObject panelRight;
 
     /// <summary>
     /// How closely to follow ball's movement
@@ -29,8 +29,8 @@ public class TrackBall : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         ball = GameObject.FindGameObjectWithTag("ball");
-        panelTop = GameObject.FindGameObjectWithTag("panelTop");
-        panelBottom = GameObject.FindGameObjectWithTag("panelBottom");
+        panelLeft = GameObject.FindGameObjectWithTag("panelLeft");
+        panelRight = GameObject.FindGameObjectWithTag("panelRight");
 
         transform.LookAt(ball.transform.position);
     }
@@ -39,19 +39,20 @@ public class TrackBall : MonoBehaviour {
 	void LateUpdate () {
 
         // If ball falls out of Arena, follow more closely and zoom in
-        if (ball.transform.position.y < panelBottom.transform.position.y) {
+        if (ball.transform.position.x < panelLeft.transform.position.x) {
             lookMagnitude += 0.0025f;
             transform.Translate(0.0f, 0.0f, 0.1f);
         }
 
         // If ball falls out of Arena, follow more closely and zoom in
-        if (ball.transform.position.y > panelTop.transform.position.y) {
+        if (ball.transform.position.x > panelRight.transform.position.x) {
             lookMagnitude += 0.0025f;
             transform.Translate(0.0f, 0.0f, 0.1f);
         }
 
-        // Loosely follow ball by reducing magnitude of look position 
+        // Loosely follow ball x position by reducing magnitude of look position 
         var target = ball.transform.position;
+        target = new Vector3(target.x, 0, 0);
         transform.LookAt(target * lookMagnitude);
     }
 }

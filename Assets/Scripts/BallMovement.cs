@@ -11,12 +11,12 @@ public class BallMovement : MonoBehaviour {
     /// <summary>
     /// The bottom panel in the game level
     /// </summary>
-    GameObject panelBottom;
+    GameObject panelLeft;
 
     /// <summary>
     /// The top panel in the game level
     /// </summary>
-    GameObject panelTop;
+    GameObject panelRight;
 
     /// <summary>
     /// Score keeper for game
@@ -31,12 +31,12 @@ public class BallMovement : MonoBehaviour {
     /// <summary>
     /// Left boundary for panel center
     /// </summary>
-    float leftBoundary = 0.0f;
+    float topBoundary = 0.0f;
 
     /// <summary>
     /// Right boundary for panel center
     /// </summary>
-    float rightBoundary = 0.0f;
+    float bottomBoundary = 0.0f;
 
     /// <summary>
     /// Physics body for collision and velocity calculations
@@ -107,23 +107,23 @@ public class BallMovement : MonoBehaviour {
 	// Gravity is not enough. Push ball down at start
 	void Start () {
         ballProperties = GetComponent<BallProperties>();
-        transform.position = new Vector3(ballProperties.startX, 
-            transform.position.y, transform.position.z);
+        transform.position = new Vector3(transform.position.x,
+            ballProperties.startY, transform.position.z);
         rigidBody = GetComponent<Rigidbody>();
-        rigidBody.AddForce(0.0f, -ballProperties.InitialForce, 0.0f);
-        leftBoundary = GameObject.FindGameObjectWithTag("leftBoundary").transform.position.x;
-        rightBoundary = GameObject.FindGameObjectWithTag("rightBoundary").transform.position.x;
-        panelBottom = GameObject.FindGameObjectWithTag("panelBottom");
-        panelTop = GameObject.FindGameObjectWithTag("panelTop");
+        rigidBody.AddForce(ballProperties.InitialForce, 0.0f, 0.0f);
+        topBoundary = GameObject.FindGameObjectWithTag("topBoundary").transform.position.y;
+        bottomBoundary = GameObject.FindGameObjectWithTag("bottomBoundary").transform.position.y;
+        panelLeft = GameObject.FindGameObjectWithTag("panelLeft");
+        panelRight = GameObject.FindGameObjectWithTag("panelRight");
         scoreKeeper = GameObject.FindGameObjectWithTag("scoreKeeper").GetComponent<ScoreKeeper>();
         dash = GetComponent<BallDash>();
     }
 
     void Update() {
-        if ((transform.position.y < panelBottom.transform.position.y ||
-            transform.position.y > panelTop.transform.position.y ||
-            transform.position.x < leftBoundary ||
-            transform.position.x > rightBoundary) && !scoreKeeper.IsGameOver) {
+        if ((transform.position.x < panelLeft.transform.position.x ||
+            transform.position.x > panelRight.transform.position.x ||
+            transform.position.y < bottomBoundary ||
+            transform.position.y > topBoundary) && !scoreKeeper.IsGameOver) {
             GetComponent<Collider>().enabled = false;
             scoreKeeper.GetTimer().StartTimer();
             scoreKeeper.GetTimer().SetMark(scoreKeeper.RestartTime);

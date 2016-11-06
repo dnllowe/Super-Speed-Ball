@@ -9,34 +9,6 @@ public class oFunctions : MonoBehaviour {
     public static Camera overheadCamera;
 
     /// <summary>
-    /// Timer to count frames for CountFramesPerSecond
-    /// </summary>
-    static oTimer frameTimer;
-
-    /// <summary>
-    /// Keeps track of frame for CountFramesPerSecond
-    /// </summary>
-    static int frameCount = 0;
-
-    /// <summary>
-    /// Stores frames per second from CountFramesPerSecond
-    /// </summary>
-    static float framesPerSecond = 0.0f;
-
-    /// <summary>
-    /// Keeps track of game's frames per second
-    /// </summary>
-    public static void CountFramesPerSecond() {
-        frameCount++;
-        var sec = frameTimer.GetElapsedTime();
-        if (sec >= 1000) {
-            framesPerSecond = (float)(frameCount) / ((float)(sec) / 1000.0f);
-            frameCount = 0;
-            frameTimer.RestartTimer();
-        }
-    }
-
-    /// <summary>
     /// Converts a touch to game world coordinates at z-depth of target
     /// </summary>
     /// <param name="touch">The touch to convert</param>
@@ -121,33 +93,18 @@ public class oFunctions : MonoBehaviour {
                 break;
             }
         }
-
         return childObject;
     }
 
-    void Awake() {
-        frameTimer = gameObject.AddComponent<oTimer>();
-    }
-
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start() {
         var cameras = Camera.allCameras;
 
-        for(int iii = 0; iii < cameras.Length; iii++) {
-            if(cameras[iii].CompareTag("overhead")) {
+        for (int iii = 0; iii < cameras.Length; iii++) {
+            if (cameras[iii].CompareTag("overhead")) {
                 overheadCamera = cameras[iii];
                 break;
             }
         }
-
-        frameTimer.StartTimer();
-	}
-    
-    void Update() {
-
-        if(frameTimer.GetElapsedTime() >= 1000) {
-            Debug.Log("Frames Per Second: " + framesPerSecond);
-        }
-        CountFramesPerSecond();
     }
 }

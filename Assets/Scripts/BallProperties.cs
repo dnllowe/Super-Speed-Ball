@@ -5,7 +5,7 @@ public class BallProperties : MonoBehaviour {
     /// <summary>
     /// Starting x vector
     /// </summary>
-    public float startX = 0.0f;
+    public float startY = 0.0f;
 
     /// <summary>
     /// How much force hits the ball to start each round

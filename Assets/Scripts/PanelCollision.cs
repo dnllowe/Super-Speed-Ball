@@ -9,7 +9,7 @@ public class PanelCollision : MonoBehaviour {
     /// <summary>
     /// Enumerator for whic side of the screen the panel is on. 0 = BOTTOM. 1 = TOP.
     /// </summary>
-    public enum HEMISPHERE { BOTTOM, TOP };
+    public enum HEMISPHERE { LEFT, RIGHT };
 
     /// <summary>
     /// Enumerator for whic side of the screen the panel is on. 0 = BOTTOM. 1 = TOP.
@@ -24,8 +24,8 @@ public class PanelCollision : MonoBehaviour {
     /// <summary>
     /// How much force to add to ball each time it hits panel
     /// </summary>
-    float addedForceY = 50.0f;
-    float newVelocityX = 0.0f;
+    float addedForceX = 50.0f;
+    float newVelocityY = 0.0f;
 
     /// <summary>
     /// The distance from panel's center when the ball hits the panel (affects x vector)
@@ -48,27 +48,28 @@ public class PanelCollision : MonoBehaviour {
     /// <param name="collision">Any object with colliding with tag "ricochet"</param>
     void OnCollisionEnter(Collision collision) {
         if (collision.gameObject.CompareTag("ball")) {
-            newVelocityX = ballRigidBody.velocity.y;
+
+            // Set Y velocity equal to x, and modify based on distance from center
+            newVelocityY = ballRigidBody.velocity.x;
 
             // Get distance from center of panel to contact point
             ContactPoint contact = collision.contacts[0];
-            distanceFromCenter = contact.point.x - transform.position.x;
+            distanceFromCenter = contact.point.y - transform.position.y;
             relativeDistance = distanceFromCenter / lengthFromCenter;
 
             // Apply magnitude to x velocity, keep y velocity
-            newVelocityX *= relativeDistance;
-            float velocityY = ballRigidBody.velocity.y;
-
-            // Apply forces to ball
-            ballRigidBody.AddForce(0.0f, addedForceY, 0.0f);
+            newVelocityY *= relativeDistance;
+            float velocityX = ballRigidBody.velocity.x;
 
             // Must reverse direction for top vs bottom panels
             switch (hemisphere) {
-                case HEMISPHERE.BOTTOM:
-                    ballRigidBody.velocity = new Vector3(newVelocityX, velocityY, 0);
+                case HEMISPHERE.LEFT:
+                    ballRigidBody.AddForce(addedForceX, 0.0f, 0.0f);
+                    ballRigidBody.velocity = new Vector3(velocityX, newVelocityY, 0);
                     break;
-                case HEMISPHERE.TOP:
-                    ballRigidBody.velocity = new Vector3(-newVelocityX, velocityY, 0);
+                case HEMISPHERE.RIGHT:
+                    ballRigidBody.AddForce(-addedForceX, 0.0f, 0.0f);
+                    ballRigidBody.velocity = new Vector3(velocityX, -newVelocityY, 0);
                     break;
             }
         }
@@ -77,6 +78,6 @@ public class PanelCollision : MonoBehaviour {
     // Use this for initialization
     void Start () {
         ballRigidBody = GameObject.FindGameObjectWithTag("ball").GetComponent<Rigidbody>();
-        lengthFromCenter = transform.localScale.x / 2.0f;
+        lengthFromCenter = transform.localScale.y / 2.0f;
 	}
 }

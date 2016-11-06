@@ -9,7 +9,7 @@ public class PanelMovement : MonoBehaviour {
     /// <summary>
     /// Enumerator for whic side of the screen the panel is on. 0 = BOTTOM. 1 = TOP.
     /// </summary>
-    public enum HEMISPHERE { BOTTOM, TOP };
+    public enum HEMISPHERE { LEFT, RIGHT };
 
     /// <summary>
     /// Enumerator for whic side of the screen the panel is on. 0 = BOTTOM. 1 = TOP.
@@ -19,12 +19,12 @@ public class PanelMovement : MonoBehaviour {
     /// <summary>
     /// Starting x vector
     /// </summary>
-    public float startX = 0.0f;
+    public float startY = 0.0f;
 
     /// <summary>
-    /// Change in touch / mouse drag from player
+    /// Change in y based on keypress
     /// </summary>
-    float deltaX = 0;
+    float deltaY = 0.0f;
 
     /// <summary>
     /// Vector for latest touch position
@@ -34,12 +34,12 @@ public class PanelMovement : MonoBehaviour {
     /// <summary>
     /// Left boundary for panel center
     /// </summary>
-    float leftBoundary = 0.0f;
+    float topBoundary = 0.0f;
 
     /// <summary>
     /// Right boundary for panel center
     /// </summary>
-    float rightBoundary = 0.0f;
+    float bottomBoundary = 0.0f;
 
     /// <summary>
     /// Provides data on touch / mouse drag and taps / clicks
@@ -49,9 +49,9 @@ public class PanelMovement : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         input = GameObject.FindGameObjectWithTag("input").GetComponent<PlayerInput>();
-        transform.position = new Vector3(startX, transform.position.y, transform.position.z);
-        leftBoundary = GameObject.FindGameObjectWithTag("leftBoundary").transform.position.x;
-        rightBoundary = GameObject.FindGameObjectWithTag("rightBoundary").transform.position.x;
+        transform.position = new Vector3(transform.position.x, startY, transform.position.z);
+        topBoundary = GameObject.FindGameObjectWithTag("topBoundary").transform.position.y;
+        bottomBoundary = GameObject.FindGameObjectWithTag("bottomBoundary").transform.position.y;
         touchPosition = transform.position;
     }
 	
@@ -59,8 +59,8 @@ public class PanelMovement : MonoBehaviour {
 	void Update () {
 
         // Set new position based on touch or keyboard. If no new touch, stay in place.
-        if (hemisphere == HEMISPHERE.BOTTOM) {
-            deltaX = input.DeltaXBottom;
+        if (hemisphere == HEMISPHERE.LEFT) {
+            deltaY = input.DeltaYLeft;
 
             if (input.LeftTouchCoordinates != null) {
                 touchPosition = oFunctions.ConvertScreenToGameCoordinates(
@@ -70,8 +70,8 @@ public class PanelMovement : MonoBehaviour {
             }
         }
 
-        if (hemisphere == HEMISPHERE.TOP) {
-            deltaX = input.DeltaXTop;
+        if (hemisphere == HEMISPHERE.RIGHT) {
+            deltaY = input.DeltaYRight;
 
             if (input.RightTouchCoordinates != null) {
                 touchPosition = oFunctions.ConvertScreenToGameCoordinates(
@@ -84,54 +84,26 @@ public class PanelMovement : MonoBehaviour {
         if (SystemInfo.deviceType == DeviceType.Handheld) {
 
             // Keep panel within bounds, prevent movement if out of bounds 
-            var x = touchPosition.x;
-            var y = transform.position.y;
+            var x = transform.position.x;
+            var y = touchPosition.y;
             var z = transform.position.z;
 
-            var center = transform.position.x;
-            if (x < leftBoundary) {
-                x = leftBoundary;
-            } else if (x > rightBoundary) {
-                x = rightBoundary;
+            if (y < bottomBoundary) {
+                y = bottomBoundary;
+            } else if (y > topBoundary) {
+                y = topBoundary;
             }
             transform.position = new Vector3(x, y, z);
 
         } else if (SystemInfo.deviceType == DeviceType.Desktop) {
 
             // Keep panel within bounds, prevent movement if out of bounds 
-            var center = transform.position.x;
-            if ((center <= leftBoundary && deltaX < 0) || 
-                (center >= rightBoundary && deltaX > 0)) {
-                deltaX = 0;
+            var center = transform.position.y;
+            if ((center <= bottomBoundary && deltaY < 0) || 
+                (center >= topBoundary && deltaY > 0)) {
+                deltaY = 0;
             }
-            transform.Translate(deltaX, 0, 0);
+            transform.Translate(0, deltaY, 0);
         }
-        
 	}
-
-    /// <summary>
-    /// Set left boundary for panel movement
-    /// </summary>
-    /// <param name="boundary"></param>
-    public void SetLeftBoundary(float boundary) {
-        leftBoundary = boundary;
-    }
-
-    /// <summary>
-    /// Set right boundary for panel movement
-    /// </summary>
-    /// <param name="boundary"></param>
-    public void SetRightBoundary(float boundary) {
-        rightBoundary = boundary;
-    }
-
-    /// <summary>
-    /// Set left and right boundaries for panel movement
-    /// </summary>
-    /// <param name="boundaryLeft">Left boundary for panel center</param>
-    /// <param name="boundaryRight">Right boundary for panel center</param>
-    public void SetBoundary(float boundaryLeft, float boundaryRight) {
-        leftBoundary = boundaryLeft;
-        rightBoundary = boundaryRight;
-    }
 }

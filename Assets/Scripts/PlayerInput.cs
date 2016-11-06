@@ -117,25 +117,25 @@ public class PlayerInput : MonoBehaviour {
     /// <summary>
     /// Change in touch / mouse drag since previous frame
     /// </summary>
-    float deltaXBottom = 0.0f;
+    float deltaYLeft = 0.0f;
 
     /// <summary>
     /// Change in touch / mouse drag since previous frame
     /// </summary>
-    public float DeltaXBottom {
-        get { return deltaXBottom; }
+    public float DeltaYLeft {
+        get { return deltaYLeft; }
     }
 
     /// <summary>
     /// Change in touch / mouse drag since previous frame
     /// </summary>
-    float deltaXTop = 0.0f;
+    float deltaYRight = 0.0f;
 
     /// <summary>
     /// Change in touch / mouse drag since previous frame
     /// </summary>
-    public float DeltaXTop {
-        get { return deltaXTop; }
+    public float DeltaYRight {
+        get { return deltaYRight; }
     }
 
     /// <summary>
@@ -232,8 +232,8 @@ public class PlayerInput : MonoBehaviour {
     /// </summary>
     void UpdateDeltaX() {
 
-        deltaXBottom = 0.0f;
-        deltaXTop = 0.0f;
+        deltaYLeft = 0.0f;
+        deltaYRight = 0.0f;
 
         if (SystemInfo.deviceType == DeviceType.Handheld) {
 
@@ -244,18 +244,17 @@ public class PlayerInput : MonoBehaviour {
 
                 // Assign latest touches to screen hemispheres
                 if (touch.phase == TouchPhase.Began &&
-                    touch.position.y < Screen.height / 2) {
+                    touch.position.x < Screen.width / 2) {
                     leftTouchId = touch.fingerId;
                 }
 
                 if (touch.phase == TouchPhase.Began &&
-                    touch.position.y > Screen.height / 2) {
+                    touch.position.x > Screen.width / 2) {
                     rightTouchId = touch.fingerId;
                 }
 
                 if (leftTouchId == touch.fingerId) {
-                    deltaXBottom = touch.deltaPosition.x * sensitivity;
-                    deltaXBottom = touch.deltaPosition.x * sensitivity;
+                    deltaYLeft = touch.position.y;
                     leftTouchX = touch.position.x;
                     leftTouchY = touch.position.y;
                     leftTouchCoordinates = new Vector3(touch.position.x, touch.position.y, 0);
@@ -269,8 +268,7 @@ public class PlayerInput : MonoBehaviour {
                 }
 
                 if (rightTouchId == touch.fingerId) {
-                    deltaXTop = touch.deltaPosition.x * sensitivity;
-                    deltaXTop = touch.position.x;
+                    deltaYRight = touch.position.y;
                     rightTouchX = touch.position.x;
                     rightTouchY = touch.position.y;
                     rightTouchCoordinates = new Vector3(touch.position.x, touch.position.y, 0);
@@ -287,19 +285,19 @@ public class PlayerInput : MonoBehaviour {
         } else if (SystemInfo.deviceType == DeviceType.Desktop) {
 
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.W)) {
-                deltaXBottom = -1 * sensitivity;
+                deltaYLeft = 1 * sensitivity;
             }
 
             if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D)) {
-                deltaXBottom = 1 * sensitivity;
+                deltaYLeft = -1 * sensitivity;
             }
 
             if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.UpArrow)) {
-                deltaXTop = -1 * sensitivity;
+                deltaYRight = 1 * sensitivity;
             }
 
             if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.DownArrow)) {
-                deltaXTop = 1 * sensitivity;
+                deltaYRight = -1 * sensitivity;
             }
         }
     }
@@ -424,7 +422,6 @@ public class PlayerInput : MonoBehaviour {
 
         doubleTapState = DoubleTapState.NONE;
         multiTouchState = MultiTouchState.NONE;
-        
     }
 	
     void Update() {
