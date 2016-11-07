@@ -24,6 +24,11 @@ public class BallDash : MonoBehaviour {
     ColorModifier color;
 
     /// <summary>
+    /// Track player inputs
+    /// </summary>
+    PlayerInput input;
+
+    /// <summary>
     /// Where player cursor or touch is positioned relative to world space for Dash
     /// </summary>
     Vector3 aim;
@@ -49,17 +54,32 @@ public class BallDash : MonoBehaviour {
     float dashFadeValue = 0.25f;
 
     /// <summary>
-    /// Enumerator for dash state. NONE = not dashing. CHARGED = ready to initiate. BEGAN = ball frozen, but not aiming. AIM = player is aiming new direction
+    /// Enumerator for dash state. 
+    /// NONE = not dashing. 
+    /// CHARGED = ready to initiate. 
+    /// BEGAN = ball frozen, but not aiming. 
+    /// AIM = player is aiming new direction
+    /// DASH = ball is in dash state for specified time
     /// </summary>
-    public enum DASH_STATE { NONE, CHARGED, BEGAN, AIM };
+    public enum DASH_STATE { NONE, CHARGED, BEGAN, AIM, DASH };
 
     /// <summary>
-    /// Enumerator for dash state. NONE = not dashing. BEGAN = ball frozen, but not aiming. AIM = player is aiming new direction
+    /// Enumerator for dash state. 
+    /// NONE = not dashing. 
+    /// CHARGED = ready to initiate. 
+    /// BEGAN = ball frozen, but not aiming. 
+    /// AIM = player is aiming new direction
+    /// DASH = ball is in dash state for specified time
     /// </summary>
     DASH_STATE dashState;
 
     /// <summary>
-    /// Enumerator for dash state. NONE = not dashing. BEGAN = ball frozen, but not aiming. AIM = player is aiming new direction
+    /// Enumerator for dash state. 
+    /// NONE = not dashing. 
+    /// CHARGED = ready to initiate. 
+    /// BEGAN = ball frozen, but not aiming. 
+    /// AIM = player is aiming new direction
+    /// DASH = ball is in dash state for specified time
     /// </summary>
     public DASH_STATE DashState {
         get { return dashState; }
@@ -71,16 +91,46 @@ public class BallDash : MonoBehaviour {
     oTimer dodgeTimer;
 
     void OnEnable() {
-        
-        PlayerInput.onMultiTouchBegan += DashEnter;
-        PlayerInput.onMultiToSingle += DashAimBegan;
-        PlayerInput.onMultiTouchEnd += Dash; // Program Dash() so that it only works if in AIM state (to avoid quick press and release from ball in random direction)
+
+        PlayerInput.onMultiTouchBegan += UpdateDashState;
+        PlayerInput.onMultiToSingle += UpdateDashState;
+        PlayerInput.onMultiTouchEnd += UpdateDashState;
+        PlayerInput.onDoubleSimultaneousTouch += DashEnter;
+        PlayerInput.onDoubleSimultaneousToSingle += DashAimBegan;
     }
 
     void OnDisable() {
-        PlayerInput.onMultiTouchBegan -= DashEnter;
-        PlayerInput.onMultiToSingle -= DashAimBegan;
-        PlayerInput.onMultiTouchEnd -= Dash;
+        PlayerInput.onMultiTouchBegan -= UpdateDashState;
+        PlayerInput.onMultiToSingle -= UpdateDashState;
+        PlayerInput.onMultiTouchEnd -= UpdateDashState;
+        PlayerInput.onDoubleSimultaneousTouch -= DashEnter;
+        PlayerInput.onDoubleSimultaneousToSingle -= DashAimBegan;
+    }
+
+    /// <summary>
+    /// Updates dash state based on changing player input
+    /// </summary>
+    void UpdateDashState() {
+
+        // Player went from aim phase (using simultaneous to single), back to began, and now back to dash aim
+        if(dashState == DASH_STATE.BEGAN && 
+            input.MultiState == PlayerInput.MultiTouchState.TO_SINGLE &&
+            input.SimultaneousState != PlayerInput.SimultaneousTouchState.DOUBLE_DETECTED) {
+            DashAimBegan();
+        }
+
+        // Player goes from aim with single touch back to multi touch
+        if (dashState == DASH_STATE.AIM && 
+            input.MultiState == PlayerInput.MultiTouchState.MULTI) {
+            DashEnter();
+        }
+/*
+        // Cancel dash if player releases multitouch without entering aim phase
+        if(dashState == DASH_STATE.BEGAN &&
+           input.MultiState == PlayerInput.MultiTouchState.NONE) {
+            DashCancel();
+        }
+*/
     }
 
     /// <summary>
@@ -89,7 +139,7 @@ public class BallDash : MonoBehaviour {
     void DashEnter() {
         ballMovement.UpdateMaxSpeed();
         ballCollider.enabled = false;
-        if (dashState == DASH_STATE.NONE) {
+        if (dashState == DASH_STATE.NONE || dashState == DASH_STATE.DASH) {
             previousVelocity = rigidBody.velocity;
             color.SetAlpha(dashFadeValue);
             preDashPosition = transform.position;
@@ -114,10 +164,19 @@ public class BallDash : MonoBehaviour {
     /// </summary>
     void DashAim() {
         if (SystemInfo.deviceType == DeviceType.Handheld) {
-            var touch = Input.touches[Input.touchCount - 1];
 
-            // Convert ray to vector at plane that intersects object (ball)
-            aim = oFunctions.ConvertTouchToGameCoordinates(touch, gameObject);
+            if (Input.touchCount > 0) {
+                // There can only be one touch finger during aim state
+                var touch = Input.GetTouch(0);
+
+                // Convert ray to vector at plane that intersects object (ball)
+                aim = oFunctions.ConvertTouchToGameCoordinates(touch, gameObject);
+
+                // Perform dash once player releases finger
+                if (touch.phase == TouchPhase.Ended) {
+                    Dash();
+                }
+            }
 
         } else if (SystemInfo.deviceType == DeviceType.Desktop) {
             var mouse = Input.mousePosition;
@@ -131,20 +190,10 @@ public class BallDash : MonoBehaviour {
     /// Release ball in new direction (set by player). Resume previous velocity
     /// </summary>
     void Dash() {
+
+        dashState = DASH_STATE.DASH;
         ballCollider.enabled = true;
         transform.position = preDashPosition;
-
-        // RETURNS HERE
-        if (dashState != DASH_STATE.AIM) {
-            rigidBody.velocity = previousVelocity;
-            dashState = DASH_STATE.NONE;
-            color.SetAlpha(1.0f);
-
-            // Unpause timer to resume dodging
-            dodgeTimer.UnpauseTimer();
-
-            return;
-        }
 
         if (SystemInfo.deviceType == DeviceType.Handheld) {
             // Flip the output to aim opposite or where touch / mouse are pointed
@@ -170,7 +219,21 @@ public class BallDash : MonoBehaviour {
                 ballMovement.MaxSpeed * newDirection.y, 0.0f);
             rigidBody.velocity = newVelocity;
         }
-        dashState = DASH_STATE.NONE;
+
+        color.SetAlpha(1.0f);
+
+        // Unpause timer to resume dodging
+        dodgeTimer.UnpauseTimer();
+    }
+
+    /// <summary>
+    /// Cancel dash state without dashing. Put previous ball properties back.
+    /// </summary>
+    void DashCancel() {
+
+        transform.position = preDashPosition;
+        rigidBody.velocity = previousVelocity;
+        ballCollider.enabled = true;
         color.SetAlpha(1.0f);
 
         // Unpause timer to resume dodging
@@ -184,6 +247,7 @@ public class BallDash : MonoBehaviour {
         dodgeTimer = GetComponent<BallDodge>().Timer;
         ballMovement = GetComponent<BallMovement>();
         color = GetComponent<ColorModifier>();
+        input = GameObject.FindGameObjectWithTag("input").GetComponent<PlayerInput>();
         dashState = DASH_STATE.NONE;
     }
 

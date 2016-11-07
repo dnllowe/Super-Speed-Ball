@@ -26,18 +26,26 @@ public class BallDodge : MonoBehaviour {
     }
 
     /// <summary>
-    /// Enumerator for dodge state. NONE = not dodging. DODGE = in dodge mode. RECHARGE = unable to initiate dodge
+    /// Enumerator for dodge state. 
+    /// NONE = not dodging. 
+    /// DODGE = in dodge mode. 
+    /// RECHARGE = unable to initiate dodge
     /// </summary>
-    enum DODGE_STATE { NONE, DODGE, RECHARGE };
+    public enum DODGE_STATE { NONE, DODGE, RECHARGE };
 
     /// <summary>
-    /// Enumerator for dodge state. NONE = not dodging. DODGE = in dodge mode
+    /// Enumerator for dodge state. 
+    /// NONE = not dodging. 
+    /// DODGE = in dodge mode
+    /// RECHARGE = unable to initiate dodge
     /// </summary>
     DODGE_STATE dodgeState;
 
     /// <summary>
-    /// Enumerator for dodge state. NONE = not dodging. DODGE = in dodge mode
-    /// </summary>
+    /// Enumerator for dodge state. 
+    /// NONE = not dodging. 
+    /// DODGE = in dodge mode
+    /// RECHARGE = unable to initiate dodge
     DODGE_STATE DodgeState {
         get { return dodgeState; }
     }

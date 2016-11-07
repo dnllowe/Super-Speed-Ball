@@ -175,7 +175,7 @@ public class PlayerInput : MonoBehaviour {
     /// NONE = no recent taps. 
     /// BEGAN = first tap
     /// </summary>
-    public enum DoubleTapState { NONE, BEGAN };
+    enum DoubleTapState { NONE, BEGAN };
 
     /// <summary>
     /// Enumerator for double tap state. 
@@ -190,7 +190,7 @@ public class PlayerInput : MonoBehaviour {
     /// MULTI = more than one touch detected. 
     /// TO_SINGLE = transition from multi to single touch
     /// </summary>
-    public enum MultiTouchState { NONE, MULTI, TO_SINGLE };
+    enum MultiTouchState { NONE, MULTI, TO_SINGLE, SIMULTANEOUS, DOUBLE_SIMULTANEOUS };
 
     /// <summary>
     /// Enumerator for multi-touch state. 
@@ -203,40 +203,19 @@ public class PlayerInput : MonoBehaviour {
     /// <summary>
     /// Enumeratore for how many simultaneous touches have been detected
     /// NONE = no simultaneous touches detected
-    /// SINGLE_DETECTED = 1 simultaneous touch detected before timelimit
-    /// DOUBLE_DETECTED = 2 simultaneous touches detected before timelimit
+    /// SINGLE = 1 simultaneous touch detected before timelimit
+    /// DOUBLE = 2 simultaneous touches detected before timelimit
     /// </summary>
-    public enum SimultaneousTouchState { NONE, SINGLE_DETECTED, DOUBLE_DETECTED }
+    enum SimultaneousTouchState { NONE, SINGLE, DOUBLE }
 
     /// <summary>
     /// Enumeratore for how many simultaneous touches have been detected
     /// NONE = no simultaneous touches detected
-    /// SINGLE_DETECTED = 1 simultaneous touch detected before timelimit
-    /// DOUBLE_DETECTED = 2 simultaneous touches detected before timelimit
+    /// SINGLE = 1 simultaneous touch detected before timelimit
+    /// DOUBLE = 2 simultaneous touches detected before timelimit
     /// </summary>
     SimultaneousTouchState simultaneousTouchState;
 
-    /// <summary>
-    /// Current doubleTapState
-    /// </summary>
-    public DoubleTapState DoubleState {
-        get { return doubleTapState; }
-    }
-
-    /// <summary>
-    /// Current multiTouchState
-    /// </summary>
-    public MultiTouchState MultiState {
-        get { return multiTouchState; }
-    }
-
-    /// <summary>
-    /// Current simultaneousTouchState
-    /// </summary>
-    public SimultaneousTouchState SimultaneousState {
-        get { return simultaneousTouchState; }
-    }
-   
     /// <summary>
     /// Delegate for two or more touches simultaneously
     /// </summary>
@@ -277,16 +256,6 @@ public class PlayerInput : MonoBehaviour {
     /// </summary>
     /// 
     public static event OnDoubleSimultaneousTouch onDoubleSimultaneousTouch;
-
-    /// <summary>
-    /// Delegate for passing from a double simultaneous touch state to a single touch state
-    /// </summary>
-    public delegate void OnDoubleSimultaneousToSingle();
-
-    /// <summary>
-    /// Callback event for passing from a double simultaneous touch state to a single touch state
-    /// </summary>
-    public static event OnDoubleSimultaneousToSingle onDoubleSimultaneousToSingle;
 
     /// <summary>
     /// Time limit (ms) for double tap to register
@@ -336,6 +305,11 @@ public class PlayerInput : MonoBehaviour {
         deltaYLeft = 0.0f;
         deltaYRight = 0.0f;
 
+        if(doubleSimultaneousTapTimer.IsRunning()) {
+            int g;
+            g = 10;
+        }
+
         // Reset simultaneous touch counter if touches not detected in time
         if(simultaneousTimer.IsRunning() && 
            simultaneousTimer.GetElapsedTime() > simultaneousTapTimelimit) {
@@ -372,7 +346,7 @@ public class PlayerInput : MonoBehaviour {
                               simultaneousTimer.IsRunning() && 
                               simultaneousTimer.GetElapsedTime() < simultaneousTapTimelimit &&
                               simultaneousTouchState == SimultaneousTouchState.NONE) {
-                        simultaneousTouchState = SimultaneousTouchState.SINGLE_DETECTED;
+                        simultaneousTouchState = SimultaneousTouchState.SINGLE;
 
                         // Reset and look for next simultaneous touch
                         simultaneousTimer.ResetTimer();
@@ -387,13 +361,10 @@ public class PlayerInput : MonoBehaviour {
                     } else if(touch.phase == TouchPhase.Began &&
                               simultaneousTimer.IsRunning() &&
                               simultaneousTimer.GetElapsedTime() < simultaneousTapTimelimit &&
-                              simultaneousTouchState == SimultaneousTouchState.SINGLE_DETECTED &&
+                              simultaneousTouchState == SimultaneousTouchState.SINGLE &&
                               doubleSimultaneousTapTimer.IsRunning() &&
                               doubleSimultaneousTapTimer.GetElapsedTime() < doubleTapTimelimit) {
-                        simultaneousTouchState = SimultaneousTouchState.DOUBLE_DETECTED;
-                        if (onDoubleSimultaneousTouch != null) {
-                            onDoubleSimultaneousTouch();
-                        }
+                        simultaneousTouchState = SimultaneousTouchState.DOUBLE;
                         simultaneousTimer.ResetTimer();
                         doubleSimultaneousTapTimer.ResetTimer();
                         isLeftTapWaitingForRightTap = false;
@@ -413,7 +384,7 @@ public class PlayerInput : MonoBehaviour {
                               simultaneousTimer.IsRunning() &&
                               simultaneousTimer.GetElapsedTime() < simultaneousTapTimelimit &&
                               simultaneousTouchState == SimultaneousTouchState.NONE) {
-                        simultaneousTouchState = SimultaneousTouchState.SINGLE_DETECTED;
+                        simultaneousTouchState = SimultaneousTouchState.SINGLE;
 
                         // Reset and look for next simultaneous touch
                         simultaneousTimer.ResetTimer();
@@ -428,13 +399,10 @@ public class PlayerInput : MonoBehaviour {
                     } else if (touch.phase == TouchPhase.Began &&
                               simultaneousTimer.IsRunning() &&
                               simultaneousTimer.GetElapsedTime() < simultaneousTapTimelimit &&
-                              simultaneousTouchState == SimultaneousTouchState.SINGLE_DETECTED &&
+                              simultaneousTouchState == SimultaneousTouchState.SINGLE &&
                               doubleSimultaneousTapTimer.IsRunning() &&
                               doubleSimultaneousTapTimer.GetElapsedTime() < doubleTapTimelimit) {
-                        simultaneousTouchState = SimultaneousTouchState.DOUBLE_DETECTED;
-                        if (onDoubleSimultaneousTouch != null) {
-                            onDoubleSimultaneousTouch();
-                        }
+                        simultaneousTouchState = SimultaneousTouchState.DOUBLE;
                         simultaneousTimer.ResetTimer();
                         doubleSimultaneousTapTimer.ResetTimer();
                         isRightTapWaitingForLeftTap = false;
@@ -477,6 +445,11 @@ public class PlayerInput : MonoBehaviour {
                             simultaneousTimer.ResetTimer();
                         }
                     }
+                }
+
+                if(simultaneousTouchState == SimultaneousTouchState.DOUBLE) {
+                    onDoubleSimultaneousTouch();
+                    simultaneousTouchState = SimultaneousTouchState.NONE;
                 }
             }
 
@@ -575,7 +548,6 @@ public class PlayerInput : MonoBehaviour {
                     onMultiTouchEnd();
                 }
             }
-
         } else if(SystemInfo.deviceType == DeviceType.Desktop) {
             if (multiTouchState != MultiTouchState.MULTI && 
                 Input.GetKey(KeyCode.Mouse0) && Input.GetKey(KeyCode.Mouse1)) {
@@ -599,19 +571,6 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
-    void CheckDoubleToSingle() {
-
-        if (SystemInfo.deviceType == DeviceType.Handheld) {
-            if (simultaneousTouchState == SimultaneousTouchState.DOUBLE_DETECTED && 
-                Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Began) {
-                if (onDoubleSimultaneousToSingle != null) {
-                    onDoubleSimultaneousToSingle();
-                }
-                simultaneousTouchState = SimultaneousTouchState.NONE;  
-            } 
-        }
-    }
-
     void Awake() {
         doubleTapTimer = gameObject.AddComponent<oTimer>();
         doubleSimultaneousTapTimer = gameObject.AddComponent<oTimer>();
@@ -632,9 +591,21 @@ public class PlayerInput : MonoBehaviour {
     }
 	
     void Update() {
-
-        UpdateTouch();
-        CheckDoubleToSingle();
+        CheckDoubleTaps();
         CheckMultiTouches();
+        UpdateTouch();
+
+        if(Input.touchCount >= 3 && !debugTimer.IsRunning()) {
+            debugTimer.StartTimer();
+            debugTimer.SetMark(3000);
+        }
+
+        if (debugTimer.IsMarkSet() && debugTimer.HasReachedMark() && Input.touchCount >= 3) {
+            if (SceneManager.GetActiveScene().buildIndex + 1 < SceneManager.sceneCountInBuildSettings) {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            } else {
+                SceneManager.LoadScene(0);
+            }
+        }
     }
 }
