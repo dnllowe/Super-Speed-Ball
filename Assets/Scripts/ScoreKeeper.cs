@@ -32,7 +32,42 @@ public class ScoreKeeper : MonoBehaviour {
     /// <summary>
     /// Times game over and game won events
     /// </summary>
-    oTimer timer;
+    oTimer transitionTimer;
+
+    /// <summary>
+    /// Keeps track of time left in game
+    /// </summary>
+    oTimer gameTimer;
+
+    /// <summary>
+    /// Milliseconds remaining on game timer
+    /// </summary>
+    public int timeLeft = 15000;
+
+    /// <summary>
+    /// Parent for GUI elements
+    /// </summary>
+    public GameObject GUI;
+
+    /// <summary>
+    /// UI for score and multiplier
+    /// </summary>
+    public GUIElement scoreUI;
+
+    /// <summary>
+    /// Text for scoreUI
+    /// </summary>
+    public UnityEngine.UI.Text scoreText;
+
+    /// <summary>
+    /// UI for time remaining
+    /// </summary>
+    public GUIElement timeUI;
+
+    /// <summary>
+    /// Text for timeUI
+    /// </summary>
+    public UnityEngine.UI.Text timeText;
 
     /// <summary>
     /// How many milliseconds to wait until reloading scene after game over
@@ -105,13 +140,20 @@ public class ScoreKeeper : MonoBehaviour {
     float multiplier = 1.0f;
 
     /// <summary>
-    /// Returns ScoreKeeper's timer
+    /// Returns ScoreKeeper's transition timer
     /// </summary>
     /// <returns></returns>
-    public oTimer GetTimer() {
-        return timer;
+    public oTimer GetTransitionTimer() {
+        return transitionTimer;
     }
 
+    /// <summary>
+    /// Returns ScoreKeeper's game timer
+    /// </summary>
+    /// <returns></returns>
+    public oTimer GetGameTimer() {
+        return gameTimer;
+    }
     /// <summary>
     /// Increase totalGems value by 1
     /// </summary>
@@ -161,22 +203,71 @@ public class ScoreKeeper : MonoBehaviour {
         gemsCollected++;
     }
 
-    void UpdateScore() {
+    public void UpdateScore() {
+        scoreText.text = string.Format("Score: {0}", score);
+    }
 
+    void Start() {
+
+        scoreText = GameObject.Find(
+            "GUI/Score").GetComponent<UnityEngine.UI.Text>();
+
+        timeText = GameObject.Find(
+            "GUI/Time").GetComponent<UnityEngine.UI.Text>();
+
+        scoreText.text = "Score: 0";
+        timeText.text = "00:15:00";
+        gameTimer.StartTimer();
     }
 
     void Awake() {
-        timer = gameObject.AddComponent<oTimer>();
+        transitionTimer = gameObject.AddComponent<oTimer>();
+        gameTimer = gameObject.AddComponent<oTimer>();
     }
 
     void Update() {
+
+        // Count down time while game is still going
+        if(!isGameOver && !isGameWon) {
+            timeLeft -= gameTimer.GetElapsedTime();
+            gameTimer.RestartTimer();
+
+            int msLeft = (timeLeft % (60000) % 1000) / 10;
+            int secLeft = timeLeft % (60000) / 1000;
+            int minLeft = timeLeft / 60000;
+
+            string msString;
+            string secString;
+            string minString;
+ 
+            if(msLeft > 9) {
+                msString = string.Format("{0}", msLeft);
+            } else {
+                msString = string.Format("0{0}", msLeft);
+            }
+
+            if(secLeft > 9) {
+                secString = string.Format("{0}:", secLeft);
+            } else {
+                secString = string.Format("0{0}:", secLeft);
+            }
+
+            if(minLeft > 9) {
+                minString = string.Format("{0}:", minLeft);
+            } else {
+                minString = string.Format("0{0}:", minLeft);
+            }
+
+            timeText.text = minString + secString + msString;
+        }
+
         // Reload same scene after designated time frame
-        if (isGameOver && timer.HasReachedMark()) {
+        if (isGameOver && transitionTimer.HasReachedMark()) {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         // Play next level. If at last level, go back to beginning
-        if (isGameWon && timer.HasReachedMark()) {
+        if (isGameWon && transitionTimer.HasReachedMark()) {
             if (SceneManager.GetActiveScene().buildIndex + 1 < SceneManager.sceneCountInBuildSettings) {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
             } else {

@@ -46,6 +46,49 @@ public class PanelMovement : MonoBehaviour {
     /// </summary>
     PlayerInput input;
 
+    /// <summary>
+    /// Disable left panel
+    /// </summary>
+    void DisableLeftPanel() {
+        if (hemisphere == HEMISPHERE.LEFT) {
+            gameObject.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Enable left panel
+    /// </summary>
+    void EnableLeftPanel() {
+        if (hemisphere == HEMISPHERE.LEFT) {
+            gameObject.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// Disable right panel
+    /// </summary>
+    void DisableRightPanel() {
+        if (hemisphere == HEMISPHERE.RIGHT) {
+            gameObject.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Enable right panel
+    /// </summary>
+    void EnableRightPanel() {
+        if (hemisphere == HEMISPHERE.RIGHT) {
+            gameObject.SetActive(true);
+        }
+    }
+
+    void OnEnable() {
+        PlayerInput.onLeftTouchBegan += EnableLeftPanel;
+        PlayerInput.onRightTouchBegan += EnableRightPanel;
+        PlayerInput.onLeftTouchEnd += DisableLeftPanel;
+        PlayerInput.onRightTouchEnd += DisableRightPanel;
+    }
+
 	// Use this for initialization
 	void Start () {
         input = GameObject.FindGameObjectWithTag("input").GetComponent<PlayerInput>();

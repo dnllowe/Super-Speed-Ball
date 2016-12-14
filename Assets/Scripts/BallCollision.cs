@@ -18,12 +18,13 @@ public class BallCollision : MonoBehaviour {
             scoreKeeper.IncreaseGemsCollected();
             scoreKeeper.IncreaseConsecutiveGemsCollected();
             scoreKeeper.IncreaseScore();
-            scoreKeeper.IncreaseMultiplier(); 
-            
+            scoreKeeper.IncreaseMultiplier();
+            scoreKeeper.UpdateScore();
+
             if(scoreKeeper.GemsCollected >= scoreKeeper.TotalGems) {
                 scoreKeeper.IsGameWon = true;
-                scoreKeeper.GetTimer().StartTimer();
-                scoreKeeper.GetTimer().SetMark(scoreKeeper.RestartTime);
+                scoreKeeper.GetTransitionTimer().StartTimer();
+                scoreKeeper.GetTransitionTimer().SetMark(scoreKeeper.RestartTime);
             } 
 		} 
 	}

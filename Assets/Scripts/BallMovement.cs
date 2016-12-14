@@ -125,8 +125,8 @@ public class BallMovement : MonoBehaviour {
             transform.position.y < bottomBoundary ||
             transform.position.y > topBoundary) && !scoreKeeper.IsGameOver) {
             GetComponent<Collider>().enabled = false;
-            scoreKeeper.GetTimer().StartTimer();
-            scoreKeeper.GetTimer().SetMark(scoreKeeper.RestartTime);
+            scoreKeeper.GetTransitionTimer().StartTimer();
+            scoreKeeper.GetTransitionTimer().SetMark(scoreKeeper.RestartTime);
             scoreKeeper.IsGameOver = true;
         }
 

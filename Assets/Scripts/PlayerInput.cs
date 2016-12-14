@@ -289,6 +289,46 @@ public class PlayerInput : MonoBehaviour {
     public static event OnDoubleSimultaneousToSingle onDoubleSimultaneousToSingle;
 
     /// <summary>
+    /// Notification for left touch began
+    /// </summary>
+    public delegate void OnLeftTouchBegan();
+
+    /// <summary>
+    /// Notification for left touch began
+    /// </summary>
+    public static event OnLeftTouchBegan onLeftTouchBegan;
+
+    /// <summary>
+    /// Notification for left touch end
+    /// </summary>
+    public delegate void OnLeftTouchEnd();
+
+    /// <summary>
+    /// Notification for left touch end
+    /// </summary>
+    public static event OnLeftTouchEnd onLeftTouchEnd;
+
+    /// <summary>
+    /// Notification for right touch began
+    /// </summary>
+    public delegate void OnRightTouchBegan();
+
+    /// <summary>
+    /// Notification for right touch began
+    /// </summary>
+    public static event OnRightTouchBegan onRightTouchBegan;
+
+    /// <summary>
+    /// Notification for right touch end
+    /// </summary>
+    public delegate void OnRightTouchEnd();
+
+    /// <summary>
+    /// Notification for right touch end
+    /// </summary>
+    public static event OnRightTouchEnd onRightTouchEnd;
+
+    /// <summary>
     /// Time limit (ms) for double tap to register
     /// </summary>
     int doubleTapTimelimit = 500;
@@ -362,6 +402,11 @@ public class PlayerInput : MonoBehaviour {
                 if (touch.position.x < Screen.width / 2) {
                     leftTouchId = touch.fingerId;
 
+                    // Notif listeners left touch began
+                    if(touch.phase == TouchPhase.Began) {
+                        onLeftTouchBegan();
+                    }
+
                     // Check for simultaneous taps
                     if(touch.phase == TouchPhase.Began &&
                        !simultaneousTimer.IsRunning()) {
@@ -402,6 +447,11 @@ public class PlayerInput : MonoBehaviour {
 
                 if (touch.position.x > Screen.width / 2) {
                     rightTouchId = touch.fingerId;
+
+                    // Notify listeners right touch began
+                    if(touch.phase == TouchPhase.Began) {
+                        onRightTouchBegan();
+                    }
 
                     // Check for simultaneous taps
                     if (touch.phase == TouchPhase.Began &&
@@ -457,6 +507,9 @@ public class PlayerInput : MonoBehaviour {
                         if (isLeftTapWaitingForRightTap) {
                             simultaneousTimer.ResetTimer();
                         }
+
+                        // Notify listeners of left touch ending
+                        onLeftTouchEnd();
                     }
                 }
 
@@ -476,6 +529,9 @@ public class PlayerInput : MonoBehaviour {
                         if (isRightTapWaitingForLeftTap) {
                             simultaneousTimer.ResetTimer();
                         }
+
+                        // Notify listeners of right touch ending
+                        onRightTouchEnd();
                     }
                 }
             }
